@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Media Collection Catalog</title>
+    <style>
+        body { font-family: sans-serif; max-width: 800px; margin: 20px auto; padding: 0 20px; background: #f5f5f5; color: #333; }
+        .controls { display: flex; gap: 10px; margin-bottom: 20px; background: white; padding: 15px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
+        input, select { padding: 8px; border: 1px solid #ccc; border-radius: 4px; font-size: 14px; }
+        input { flex-grow: 1; }
+        .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 15px; }
+        .card { background: white; padding: 15px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); border-left: 5px solid #ccc; }
+        .card[data-type="DVD"] { border-left-color: #e53935; }
+        .card[data-type="CD"] { border-left-color: #1e88e5; }
+        .card[data-type="SACD"] { border-left-color: #43a047; }
+        .slot { font-size: 12px; color: #777; font-weight: bold; }
+        .title { font-size: 16px; font-weight: bold; margin: 5px 0; }
+        .type { display: inline-block; font-size: 11px; background: #eee; padding: 2px 6px; border-radius: 3px; text-transform: uppercase; }
+    </style>
+</head>
+<body>
+
+    <h1>Disc Explorer 400 Media Collection Catalog</h1>
+
+    <!-- ======================================================= -->
+    <!-- EDIT YOUR CATALOG DATA HERE                             -->
+    <!-- ======================================================= -->
+    <!-- Simply add or copy rows below. Maintain the exact format: -->
+    <!-- <div class="card" data-slot="XXX" data-type="TYPE">TITLE</div> -->
+    
+    <div id="catalog-data" style="display:none;">
+        <div class="card" data-slot="1" data-type="DVD">Top Cat 2</div>
+        <div class="card" data-slot="2" data-type="DVD">Top Cat 3</div>
+        <div class="card" data-slot="3" data-type="DVD">The Secret Life of Pets</div>
+        <div class="card" data-slot="4" data-type="DVD">SpongeBob SquarePants absorbing favorites</div> 
+     
+       
+      
+      <div class="card" data-slot="5" data-type="DVD">Harry Potter and the Goblet of Fire</div> 
+       <div class="card" data-slot="6" data-type="DVD">Harry Potter  and the Half Blood Prince</div>
+       <div class="card" data-slot="7" data-type="DVD">Big Hero 6</div>
+       <div class="card" data-slot="8" data-type="DVD">Bee Movie Disc 1</div>
+       <div class="card" data-slot="9" data-type="DVD">Bee Movie Disc 2</div>
+       <div class="card" data-slot="10" data-type="DVD">Top Cat 1</div>
+       <div class="card" data-slot="11" data-type="DVD">March of the Penguins</div>
+       <div class="card" data-slot="12" data-type="DVD">Harry Potter and the Chamber of Secrets</div>
+     <div class="card" data-slot="13" data-type="DVD">The Polar Express</div>
+         <div class="card" data-slot="14" data-type="DVD">The Grinch(Real)</div>
+         <div class="card" data-slot="15" data-type="DVD">elf</div>
+        <div class="card" data-slot="16" data-type="DVD">Batman Begins</div>
+         <div class="card" data-slot="17" data-type="DVD">The Dark Knight</div>
+        <div class="card" data-slot="18" data-type="DVD">Spy Kids 2 The island of lost dreams</div>
+        <div class="card" data-slot="19" data-type="DVD">Daddy Day Care</div>
+    <div class="card" data-slot="20" data-type="DVD">Alvin And the Chipmunks</div>
+         
+        
+    </div>
+  
+    
+    <!-- ======================================================= -->
+    <!-- END OF EDITABLE DATA AREA                               -->
+    <!-- ======================================================= -->
+
+    <!-- Search and Filter Controls -->
+    <div class="controls">
+        <input type="text" id="searchBar" placeholder="Search by title or slot number...">
+        <select id="typeFilter">
+            <option value="all">All Types</option>
+            <option value="DVD">DVD</option>
+            <option value="CD">CD</option>
+            <option value="SACD">SACD</option>
+        </select>
+    </div>
+
+    <!-- Interactive Grid Display -->
+    <div class="grid" id="catalogGrid"></div>
+
+    <!-- Application Logic Script -->
+    <script>
+        const rawData = document.getElementById('catalog-data');
+        const grid = document.getElementById('catalogGrid');
+        const searchBar = document.getElementById('searchBar');
+        const typeFilter = document.getElementById('typeFilter');
+        
+        let items = Array.from(rawData.children).map(el => ({
+            title: el.textContent,
+            slot: el.getAttribute('data-slot'),
+            type: el.getAttribute('data-type').toUpperCase()
+        }));
+
+        function render(filteredItems) {
+            grid.innerHTML = filteredItems.map(item => `
+                <div class="card" data-type="${item.type}">
+                    <div class="slot">SLOT ${item.slot}</div>
+                    <div class="title">${item.title}</div>
+                    <div class="type">${item.type}</div>
+                </div>
+            `).join('');
+        }
+
+        function filterCatalog() {
+            const query = searchBar.value.toLowerCase();
+            const type = typeFilter.value;
+            
+            const filtered = items.filter(item => {
+                const matchesSearch = item.title.toLowerCase().includes(query) || item.slot.includes(query);
+                const matchesType = type === 'all' || item.type === type;
+                return matchesSearch && matchesType;
+            });
+            
+            render(filtered);
+        }
+
+        searchBar.addEventListener('input', filterCatalog);
+        typeFilter.addEventListener('change', filterCatalog);
+        
+        // Initial load
+        render(items);
+    </script>
+</body>
+</html>
+`
