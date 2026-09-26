@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>DIY Noise Cancellation</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      text-align: center;
+      padding: 40px 20px;
+    }
+
+    button {
+      font-size: 20px;
+      padding: 15px 25px;
+      margin: 10px;
+      border-radius: 12px;
+      border: none;
+    }
+
+    #start {
+      background: #222;
+      color: white;
+    }
+
+    #stop {
+      background: #ddd;
+    }
+  </style>
+</head>
+
+<body>
+
+<h1>🎧 DIY Noise Cancellation</h1>
+
+<p>
+  Plug in your headphones, then press Start.
+</p>
+
+<button id="start">Start</button>
+<button id="stop">Stop</button>
+
+<script>
+let audioContext;
+let mic;
+let processor;
+let stream;
+
+document.getElementById("start").onclick = async () => {
+  try {
+    stream = await navigator.mediaDevices.getUserMedia({
+      audio: {
+        echoCancellation: false,
+        noiseSuppression: false,
+        autoGainControl: false
+      }
+    });
+
+    audioContext = new AudioContext({
+      latencyHint: "interactive"
+    });
+
+    mic = audioContext.createMediaStreamSource(stream);
+
+    processor = audioContext.createScriptProcessor(1024, 1, 1);
+
+    processor.onaudioprocess = (event) => {
+      const input = event.inputBuffer.getChannelData(0);
+      const output = event.outputBuffer.getChannelData(0);
+
+      for (let i = 0; i < input.length; i++) {
+        // Invert the microphone signal
+        output[i] = -input[i] * 0.3;
+      }
+    };
+
+    mic.connect(processor);
+    processor.connect(audioContext.destination);
+
+    await audioContext.resume();
+
+  } catch (error) {
+    alert("Microphone permission was denied or unavailable.");
+    console.error(error);
+  }
+};
+
+document.getElementById("stop").onclick = () => {
+  if (processor) processor.disconnect();
+  if (mic) mic.disconnect();
+
+  if (stream) {
+    stream.getTracks().forEach(track => track.stop());
+  }
+
+  if (audioContext) {
+    audioContext.close();
+  }
+};
+</script>
+
+</body>
+</html>
